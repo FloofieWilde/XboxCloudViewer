@@ -76,10 +76,11 @@ class MainActivity : AppCompatActivity() {
 
         setContentView(webView)
         
-        // Forcer le focus sur la WebView pour être sûr qu'elle capte la manette
+        // Pour éviter de perdre les contrôles de la manette si l'écran du bas prend le focus
+        // on ne le force pas systématiquement ici pour laisser le clavier s'ouvrir en bas.
+        // La manette continuera de fonctionner tant qu'on ne tape pas au clavier.
         webView.isFocusable = true
         webView.isFocusableInTouchMode = true
-        webView.requestFocus()
 
         // Intercepter l'action "Retour" (souvent mappée au bouton B de la manette sur Android)
         // pour empêcher l'application de se fermer accidentellement.

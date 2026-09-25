@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">Xbox Cloud Viewer</string>
+    <string name="app_name">XCV - Debug</string>
     <string name="app_icon"></string>
     <string name="welcome_message">Bienvenue %1$s</string>
 </resources>

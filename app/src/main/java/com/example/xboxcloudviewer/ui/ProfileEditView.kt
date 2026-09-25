@@ -8,12 +8,16 @@ import android.widget.EditText
 import android.widget.FrameLayout
 import android.widget.ImageButton
 import android.widget.ImageView
+import android.view.inputmethod.InputMethodManager
+import android.os.Handler
+import android.os.Looper
 import androidx.core.widget.addTextChangedListener
 import com.example.xboxcloudviewer.R
 import com.example.xboxcloudviewer.models.UserProfile
 import com.example.xboxcloudviewer.services.AccountManager
 import com.example.xboxcloudviewer.services.XboxProfileService
 import java.util.UUID
+import kotlin.concurrent.thread
 
 class ProfileEditView @JvmOverloads constructor(
     context: Context,
@@ -39,11 +43,22 @@ class ProfileEditView @JvmOverloads constructor(
 
         btnBack.setOnClickListener { onBackClicked?.invoke() }
 
+        val typingHandler = Handler(Looper.getMainLooper())
+        var typingRunnable: Runnable? = null
+
         inputName.addTextChangedListener { text ->
             val newName = text.toString().trim()
+            
+            // Annuler l'ancienne requête si l'utilisateur continue de taper
+            typingRunnable?.let { typingHandler.removeCallbacks(it) }
+
             if (newName.isNotEmpty()) {
-                val avatarUrl = XboxProfileService.getAvatarUrlForName(newName)
-                XboxProfileService.loadImageInto(avatarUrl, avatarImage)
+                // Créer un délai de 800ms avant de charger l'image générée (anti-spam / debounce)
+                typingRunnable = Runnable {
+                    val fallbackUrl = XboxProfileService.getFallbackAvatarUrl(newName)
+                    XboxProfileService.loadImageInto(fallbackUrl, avatarImage)
+                }
+                typingHandler.postDelayed(typingRunnable!!, 2000)
             } else {
                 avatarImage.setImageResource(R.drawable.ic_person)
             }
@@ -52,11 +67,25 @@ class ProfileEditView @JvmOverloads constructor(
         btnSave.setOnClickListener {
             val finalName = inputName.text.toString().trim()
             if (finalName.isNotEmpty()) {
-                val user = currentUserToEdit ?: UserProfile(UUID.randomUUID().toString(), finalName)
-                user.name = finalName
-                user.avatarUrl = XboxProfileService.getAvatarUrlForName(finalName)
-                accountManager.saveUser(user)
-                onSaveComplete?.invoke()
+                // Désactiver le bouton pendant le chargement
+                btnSave.isEnabled = false
+                btnSave.text = "Searching Xbox Live..."
+
+                thread {
+                    val realAvatar = XboxProfileService.resolveRealXboxAvatarUrl(finalName)
+                    val finalAvatarUrl = realAvatar ?: XboxProfileService.getFallbackAvatarUrl(finalName)
+                    
+                    Handler(Looper.getMainLooper()).post {
+                        val user = currentUserToEdit ?: UserProfile(UUID.randomUUID().toString(), finalName)
+                        user.name = finalName
+                        user.avatarUrl = finalAvatarUrl
+                        accountManager.saveUser(user)
+                        
+                        btnSave.isEnabled = true
+                        btnSave.text = "Save Profile"
+                        onSaveComplete?.invoke()
+                    }
+                }
             }
         }
     }
@@ -74,5 +103,10 @@ class ProfileEditView @JvmOverloads constructor(
             inputName.setText("")
             avatarImage.setImageResource(R.drawable.ic_person)
         }
+        
+        // Focus automatique et ouverture du clavier
+        inputName.requestFocus()
+        val imm = context.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+        imm.showSoftInput(inputName, InputMethodManager.SHOW_IMPLICIT)
     }
 }

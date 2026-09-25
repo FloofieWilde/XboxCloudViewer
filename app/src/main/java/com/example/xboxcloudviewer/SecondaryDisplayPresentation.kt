@@ -30,12 +30,9 @@ class SecondaryDisplayPresentation(outerContext: Context, display: Display) :
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         
-        // Empêcher l'écran secondaire de "voler" le focus de la manette
-        // On retire FLAG_NOT_TOUCHABLE pour permettre le clic tactile sur le bouton de paramètres
-        window?.addFlags(
-            WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE or
-            WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL
-        )
+        // La Presentation DOIT pouvoir prendre le focus pour que le clavier s'ouvre.
+        // On s'assure donc de supprimer le flag FLAG_NOT_FOCUSABLE.
+        window?.clearFlags(WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE)
         
         setContentView(R.layout.layout_secondary_screen)
         
@@ -63,7 +60,13 @@ class SecondaryDisplayPresentation(outerContext: Context, display: Display) :
         }
         
         accountsView.onSwitchUser = { user ->
+            // On délègue la gestion de la WebView à l'Activity (écran principal)
             onProfileSwitchRequested?.invoke(user)
+            
+            // On met à jour l'ID actif dans les SharedPreferences de la Presentation
+            accountManager.setCurrentUserId(user.id)
+            
+            // On met à jour l'UI de l'écran du bas
             accountsView.visibility = View.GONE
             updateHeaderInfo()
         }
@@ -98,7 +101,7 @@ class SecondaryDisplayPresentation(outerContext: Context, display: Display) :
     
     fun updateHeaderInfo() {
         val user = accountManager.getCurrentUser()
-        headerWelcome.text = "Bienvenue ${user.name}"
+        headerWelcome.text = context.getString(R.string.welcome_message, user.name)
         if (user.avatarUrl != null) {
             XboxProfileService.loadImageInto(user.avatarUrl!!, headerAvatar)
         } else {
