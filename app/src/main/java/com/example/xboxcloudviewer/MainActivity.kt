@@ -115,6 +115,24 @@ class MainActivity : AppCompatActivity() {
     }
 
     override fun dispatchKeyEvent(event: KeyEvent): Boolean {
+        // Intercepter uniquement le bouton "Back" d'Android (ou de la console)
+        // pour le transformer en bouton central "Xbox Guide" (BUTTON_MODE)
+        if (event.keyCode == KeyEvent.KEYCODE_BACK) {
+            val xboxGuideEvent = KeyEvent(
+                event.downTime,
+                event.eventTime,
+                event.action,
+                KeyEvent.KEYCODE_BUTTON_MODE,
+                event.repeatCount,
+                event.metaState,
+                event.deviceId,
+                event.scanCode,
+                event.flags,
+                event.source
+            )
+            return super.dispatchKeyEvent(xboxGuideEvent)
+        }
+
         // Récupérer le paramètre sauvegardé pour savoir s'il faut inverser les boutons
         val prefs = getSharedPreferences("AppPrefs", Context.MODE_PRIVATE)
         val swapButtons = prefs.getBoolean("use_xbox_button_display", false)
