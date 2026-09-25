@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <uses-permission android:name="android.permission.INTERNET" />
+
+    <application
+        android:allowBackup="true"
+        android:dataExtractionRules="@xml/data_extraction_rules"
+        android:fullBackupContent="@xml/backup_rules"
+        android:icon="@drawable/xbox_aqua"
+        android:label="@string/app_name"
+        android:roundIcon="@drawable/xbox_aqua"
+        android:supportsRtl="true"
+        android:resizeableActivity="true"
+        android:theme="@style/Theme.XboxCloudViewer">
+
+        <activity
+            android:name=".MainActivity"
+            android:exported="true"
+            android:screenOrientation="fullSensor"
+            android:configChanges="orientation|screenSize|screenLayout|keyboardHidden|smallestScreenSize">
+
+            <meta-data
+                android:name="android.max_aspect"
+                android:value="2.4" />
+
+            <!-- Déclarer que l'application est compatible avec les affichages virtuels et les tailles multiples -->
+            <meta-data
+                android:name="android.supports_size_changes"
+                android:value="true" />
+
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+                <!-- Indiquer aux launchers (dont iisu) qu'il s'agit d'une application multi-fenêtres / deux écrans -->
+                <category android:name="android.intent.category.MULTIWINDOW_LAUNCHER" />
+            </intent-filter>
+        </activity>
+
+        <meta-data android:name="android.vendor.display.support_multi_display" android:value="true" />
+
+    </application>
+
+</manifest>
