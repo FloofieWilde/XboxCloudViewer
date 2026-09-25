@@ -24,6 +24,9 @@ android {
                 enable = false
             }
         }
+        debug {
+            applicationIdSuffix = ".debug"
+        }
     }
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_11
