@@ -62,6 +62,11 @@ class MainActivity : AppCompatActivity() {
         }
 
         setContentView(webView)
+        
+        // Forcer le focus sur la WebView pour être sûr qu'elle capte la manette
+        webView.isFocusable = true
+        webView.isFocusableInTouchMode = true
+        webView.requestFocus()
 
         // Intercepter l'action "Retour" (souvent mappée au bouton B de la manette sur Android)
         // pour empêcher l'application de se fermer accidentellement.
