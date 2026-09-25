@@ -1,9 +1,11 @@
 package com.example.xboxcloudviewer
 
 import android.annotation.SuppressLint
+import android.content.Context
 import android.hardware.display.DisplayManager
 import android.os.Bundle
 import android.view.Display
+import android.view.KeyEvent
 import android.view.ViewGroup
 import android.webkit.WebChromeClient
 import android.webkit.WebView
@@ -110,5 +112,41 @@ class MainActivity : AppCompatActivity() {
                 break // On s'arrête au premier écran secondaire trouvé
             }
         }
+    }
+
+    override fun dispatchKeyEvent(event: KeyEvent): Boolean {
+        // Récupérer le paramètre sauvegardé pour savoir s'il faut inverser les boutons
+        val prefs = getSharedPreferences("AppPrefs", Context.MODE_PRIVATE)
+        val swapButtons = prefs.getBoolean("use_xbox_button_display", false)
+
+        if (swapButtons) {
+            val newKeyCode = when (event.keyCode) {
+                KeyEvent.KEYCODE_BUTTON_A -> KeyEvent.KEYCODE_BUTTON_B
+                KeyEvent.KEYCODE_BUTTON_B -> KeyEvent.KEYCODE_BUTTON_A
+                KeyEvent.KEYCODE_BUTTON_X -> KeyEvent.KEYCODE_BUTTON_Y
+                KeyEvent.KEYCODE_BUTTON_Y -> KeyEvent.KEYCODE_BUTTON_X
+                else -> event.keyCode
+            }
+
+            // Si on a intercepté un bouton à échanger
+            if (newKeyCode != event.keyCode) {
+                // On crée un nouvel événement identique mais avec le bon KeyCode
+                val newEvent = KeyEvent(
+                    event.downTime,
+                    event.eventTime,
+                    event.action,
+                    newKeyCode,
+                    event.repeatCount,
+                    event.metaState,
+                    event.deviceId,
+                    event.scanCode,
+                    event.flags,
+                    event.source
+                )
+                return super.dispatchKeyEvent(newEvent)
+            }
+        }
+
+        return super.dispatchKeyEvent(event)
     }
 }
