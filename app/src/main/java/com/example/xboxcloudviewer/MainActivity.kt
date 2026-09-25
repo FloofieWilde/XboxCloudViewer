@@ -15,10 +15,13 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.WindowInsetsControllerCompat
+import com.example.xboxcloudviewer.services.AccountManager
+import com.example.xboxcloudviewer.services.WebViewSessionManager
 
 class MainActivity : AppCompatActivity() {
 
     private var secondaryPresentation: SecondaryDisplayPresentation? = null
+    private lateinit var webView: WebView
 
     @SuppressLint("SetJavaScriptEnabled")
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -35,7 +38,7 @@ class MainActivity : AppCompatActivity() {
         }
 
         // Création de la WebView prenant tout l'écran principal
-        val webView = WebView(this).apply {
+        webView = WebView(this).apply {
             layoutParams = ViewGroup.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT,
                 ViewGroup.LayoutParams.MATCH_PARENT
@@ -57,8 +60,16 @@ class MainActivity : AppCompatActivity() {
                 loadWithOverviewMode = true
             }
             
-            webViewClient = WebViewClient()
             webChromeClient = WebChromeClient()
+            
+            // WebViewClient spécifique pour gérer l'injection du LocalStorage
+            webViewClient = object : WebViewClient() {
+                override fun onPageFinished(view: WebView?, url: String?) {
+                    super.onPageFinished(view, url)
+                    val currentUser = AccountManager(this@MainActivity).getCurrentUser()
+                    WebViewSessionManager(this@MainActivity.webView, AccountManager(this@MainActivity)).injectLocalStorage(currentUser)
+                }
+            }
             
             loadUrl("https://play.xbox.com")
         }
@@ -104,6 +115,20 @@ class MainActivity : AppCompatActivity() {
             // On ignore l'écran principal
             if (display.displayId != Display.DEFAULT_DISPLAY) {
                 secondaryPresentation = SecondaryDisplayPresentation(this, display)
+                
+                // --- AJOUT : GESTION DU CHANGEMENT DE COMPTE ---
+                secondaryPresentation?.onProfileSwitchRequested = { newUser ->
+                    val sessionManager = WebViewSessionManager(webView, AccountManager(this))
+                    
+                    // 1. Sauvegarder la session du compte actuel
+                    sessionManager.saveCurrentSession {
+                        // 2. Changer de compte, effacer les données WebView et charger le nouveau
+                        sessionManager.switchProfile(newUser) {
+                            webView.loadUrl("https://play.xbox.com")
+                        }
+                    }
+                }
+
                 try {
                     secondaryPresentation?.show()
                 } catch (e: Exception) {
