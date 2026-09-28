@@ -44,7 +44,7 @@ class SecondaryDisplayPresentation(outerContext: Context, display: Display) :
         val btnAccount = findViewById<LinearLayout>(R.id.btn_account)
         headerWelcome = findViewById(R.id.header_welcome)
         headerAvatar = findViewById(R.id.header_avatar)
-        
+
         val accountsView = findViewById<AccountsView>(R.id.accounts_view)
         val profileEditView = findViewById<ProfileEditView>(R.id.profile_edit_view)
 

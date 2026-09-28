@@ -80,7 +80,7 @@ class ProfileEditView @JvmOverloads constructor(
                         user.name = finalName
                         user.avatarUrl = finalAvatarUrl
                         accountManager.saveUser(user)
-                        
+
                         btnSave.isEnabled = true
                         btnSave.text = "Save Profile"
                         onSaveComplete?.invoke()
