@@ -82,6 +82,21 @@ class SecondaryDisplayPresentation(outerContext: Context, display: Display) :
             updateHeaderInfo()
         }
 
+        profileEditView.onDeleteRequested = { user ->
+            val wasCurrentUser = (user.id == accountManager.getCurrentUserId())
+            accountManager.deleteUser(user.id)
+            
+            profileEditView.visibility = View.GONE
+            accountsView.refreshList()
+            updateHeaderInfo()
+            
+            // Si on vient de supprimer le compte en cours d'utilisation, on force le switch sur le nouveau compte par défaut
+            if (wasCurrentUser) {
+                val newCurrent = accountManager.getCurrentUser()
+                onProfileSwitchRequested?.invoke(newCurrent)
+            }
+        }
+
         // Header click
         btnAccount.setOnClickListener {
             accountsView.refreshList()

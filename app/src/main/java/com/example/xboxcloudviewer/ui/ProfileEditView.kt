@@ -27,21 +27,31 @@ class ProfileEditView @JvmOverloads constructor(
 
     var onBackClicked: (() -> Unit)? = null
     var onSaveComplete: (() -> Unit)? = null
+    var onDeleteRequested: ((UserProfile) -> Unit)? = null
+    
     private var currentUserToEdit: UserProfile? = null
     private lateinit var accountManager: AccountManager
 
     private val inputName: EditText
     private val avatarImage: ImageView
+    private val btnDelete: Button
 
     init {
         LayoutInflater.from(context).inflate(R.layout.layout_profile_edit_view, this, true)
 
         val btnBack = findViewById<ImageButton>(R.id.btn_back_accounts)
         val btnSave = findViewById<Button>(R.id.btn_save_profile)
+        btnDelete = findViewById(R.id.btn_delete_profile)
         inputName = findViewById(R.id.profile_name_input)
         avatarImage = findViewById(R.id.profile_avatar)
 
         btnBack.setOnClickListener { onBackClicked?.invoke() }
+        
+        btnDelete.setOnClickListener {
+            currentUserToEdit?.let { user ->
+                onDeleteRequested?.invoke(user)
+            }
+        }
 
         val typingHandler = Handler(Looper.getMainLooper())
         var typingRunnable: Runnable? = null
@@ -95,11 +105,13 @@ class ProfileEditView @JvmOverloads constructor(
         this.currentUserToEdit = userToEdit
 
         if (userToEdit != null) {
+            btnDelete.visibility = VISIBLE
             inputName.setText(userToEdit.name)
             if (userToEdit.avatarUrl != null) {
                 XboxProfileService.loadImageInto(userToEdit.avatarUrl!!, avatarImage)
             }
         } else {
+            btnDelete.visibility = GONE
             inputName.setText("")
             avatarImage.setImageResource(R.drawable.ic_person)
         }

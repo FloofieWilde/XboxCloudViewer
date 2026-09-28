@@ -58,6 +58,25 @@ class AccountManager(context: Context) {
         saveUsers(users)
     }
 
+    fun deleteUser(userId: String) {
+        val users = getUsers().toMutableList()
+        val index = users.indexOfFirst { it.id == userId }
+        if (index != -1) {
+            users.removeAt(index)
+            // S'il n'y a plus aucun profil, on génère un Guest
+            if (users.isEmpty()) {
+                val guest = UserProfile(UUID.randomUUID().toString(), "Guest")
+                users.add(guest)
+            }
+            saveUsers(users)
+
+            // Si on a supprimé le profil actuellement actif, on bascule sur le premier disponible
+            if (getCurrentUserId() == userId) {
+                setCurrentUserId(users.first().id)
+            }
+        }
+    }
+
     fun getCurrentUserId(): String {
         return prefs.getString("current_user_id", "") ?: ""
     }

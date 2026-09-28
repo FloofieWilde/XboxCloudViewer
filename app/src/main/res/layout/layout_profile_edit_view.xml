@@ -65,5 +65,14 @@
             android:layout_height="wrap_content"
             android:text="Save Profile" />
 
+        <Button
+            android:id="@+id/btn_delete_profile"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:background="?attr/selectableItemBackground"
+            android:textColor="#FF5555"
+            android:text="Delete Profile" />
+
     </LinearLayout>
 </merge>
