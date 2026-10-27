@@ -55,3 +55,15 @@ By using, reading, deploying, modifying, or simply staring intensely at this rep
 - Stay curious, stay creative, and above all: Remain fluffy. 🐾
 
 _No lawyers were harmed in the making of these terms._
+
+## ☕ Support this project
+
+I build and maintain my projects during my free time, simply because I enjoy creating things and solving problems.
+I choose to keep them open-source in the hope that they might help others facing the same challenges I've encountered along the way.
+If you find this project useful, any kind of support is always appreciated! It helps me stay motivated and keep improving and sharing my work.
+- ⭐ **Star this repository** — It's free and means a lot!
+- ☕ **[Buy me a coffee (or a beer)](https://ko-fi.com/floofiewilde)** — Fuel my next coding - or vibing - session!
+- 🐺 **Spread the word** — Share this project with your pack!
+**No pressure, though!** Just knowing that something I've built has helped someone is already a reward in itself.
+
+*Made with ❤️, ☕ and a little bit of wolf magic.*
